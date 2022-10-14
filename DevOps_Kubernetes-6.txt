@@ -1,0 +1,107 @@
+$ kubectl get pods --watch
+$ kubectl get nodes # gives number of nodes in a cluster. eg 1 master 2 workers
+$ kubectl describe node <>
+
+In nodeport service:
+
+nodePort: 30009 means : the nodes on which the pods are running, will listen to requests on port 30009
+
+Run a nodeport service
+$ kubectl describe service np-nginx-server-dep
+
+# observe the endpoints, nodeport etc.
+
+$ curl kubeworker1:30009 # On Ashish's laptop, kubeworker1 is a node
+
+What is kw2 command?
+https:kubeworker1
+
+The client needn't contact all the 3 nodes to get response. It only needs response from 1 node.
+We have multiple nodes for load balancing / fault tolerance.
+
+3rd type of Service: We have LoadBalancer
+LoadBalancer has external dependency. It uses load balancer of Cloud provider.
+
+The load balancer connects to NodePort service.
+NodePort service contacts with ClusterIP
+
+See the Diagram.
+We won't demonstrate Load Balancer.
+
+Scheduling:
+In production scenario: there can be many worker nodes available and there will be many applications to be scheduled on these nodes with each application having different requirements.
+Until now we had no control as to on which node the Pod/Replicaset is deployed.
+
+There are different types of Scheduling in Kubernetes:
+1. Manual Scheduling
+
+apiVersion: v1
+kind: Pod
+.
+.
+.
+spec:
+  nodeName: kubeworker1   # the pod is scheduled on kubeworker1
+
+
+
+Kubernetes checks the resource requirement of the pod and matches it with the resource availability with Nodes. It tries to maximise the availability of resources.
+eg if one node has 23 CPUs and second node has 10 CPUs. Our Pod requires 2 CPUs. Then Kubernetes launches the pod on 23CPUs node bcoz then we'll have 21 CPU's available! (Otherwise we'll only have 8 CPUs available)
+
+Many pods can run on a node.
+
+2. Taints and Tolerations Scheduling:
+The node selects to launch only a certain kinds of pods / certain pods aren't launched on any node.
+We can "Taint" a node.
+
+$ kubectl describe node ______
+# see the Taints: key set to NoSchedule
+
+$ kubectl taint node kubeworker1 app=nginx-server:NoExecute
+# Any pod with label app=nginx-server won't be allowed to launch on kubeworker1
+
+$ kubectl describe node kubeworker1
+# All the existing nginx-server pods on kubeworker1 are gone.
+
+So, taints are applied on nodes
+
+TOlerations
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-server
+  labels:
+    app: nginx-server
+spec:
+  containers:
+    - name: container-1
+      image: 
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "nginx-server"
+    effect: "NoExecute"
+    
+This means: The pod nginx-server CAN run on a node with the taint app=nginx-server:NoExecute set. So even if this pod has a label of app=nginx-server, it WILL BE SCheduled on a node where app=nginx-server:NoExecute Set!!
+
+
+How to remove a Taint on a node?
+kubectl taint node kubeworker1 app=nginx-server:NoExecute-   # This negative sign removes the taint
+
+
+
+kubemaster: is already tainted with NoSchedule   # Note: NoSchedule is different from NoExecute!!!!
+NoSchedule means k8s won't itself schedule on master node.
+However if a pod says nodeName: kubemaster then it will run on kubemaster.
+
+
+
+3 types of taints:
+1. NoSchedule  - Not preferred for scheduling. But if anything is running already, then it's not stopped. One can specifically mention to schedule on this node.
+2. NoPreferSchedule - try not to schedule. However no guarantee
+3. NoExecute: Not allowed to run anything. If anything is executing, it is also stopped.
+
+
+
+3. NodeAffinity
+ - we can tell pods to pick a particular node.

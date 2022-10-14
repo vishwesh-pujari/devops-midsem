@@ -1,0 +1,184 @@
+Services in Kubernetes:
+
+$ kubectl run --image nginx nginx
+$ kubectl get pods
+$ kubectl describe pod nginx
+-> Look at the IP address
+
+$ kubectl get node
+
+$ ping <IP of nginx>
+$ curl <IP of nginx> # port number 80 la request jaate.
+
+Doesn't work. Bcoz the pod runs in isolated environment.
+
+describe the pod. The node is kubeworker1(on ashish's machine)
+We will only be able to connect from the node on which the pod is running. How to access a pod from anywhere in the cluster?
+
+We can run a multi-node cluster using minikube.
+
+I tried this to ping a pod -> https://projectcalico.docs.tigera.io/getting-started/kubernetes/hardway/test-networking
+
+In the diagram
+The other end communicates with the Service node having IP of 1.1.1.1 . The Service does the load balancing part and it knows which pod is up or down.
+
+$ kubectl get pods -o wide   # shows the IP
+
+cat cip-service-nginx-dep.yml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cip-service-nginx-dep
+  name: cip-service-nginx-dep
+spec:
+  ports:
+  - name: "80"
+    port: 80 # The service listens on port 80. Remote services request on "port"
+    protocol: TCP
+    targetPort: 80 # this is the port on the node. targetPort is the port on the pods to which the service is connected.
+  selector:
+    app: nginx-server # apply this service for pods having label app: nginx-server
+  type: ClusterIP
+
+Any pod which matches the selector is a part of our service.
+If multiple labels are provided, then if all those labels match, then only the pods are selected.
+
+Apply a service. You can see the service in
+$ kubectl get all -A -o wide
+
+You can now communicate with the ClusterIp service instead of communicating with Individual pods.
+
+$ kubectl port-forward services/cip-nginx-server-dep 30005:80 --address 0.0.0.0
+$ curl kubemaster:30005   # do curl localhost:30005
+
+As we are using a service, even if the pods get deleted, we can connect to the same cluster IP service and still able to get the response.
+So the service is the new abstraction layer. We don't need to care whether pods are getting deleted and their IP is being changed.
+The service handles all that, we just request to the service.
+
+For better understanding: read https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+
+My hands-on for understanding services:
+cat service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cip-service-nginx-dep
+  name: cip-service-nginx-dep
+spec:
+  ports:
+  - name: "80"
+    port: 80 # The service listens on port 80. Remote services request on "port"
+    protocol: TCP
+    targetPort: 80 # this is the port on the node. targetPort is the port on the pods to which the service is connected.
+  selector:
+    app: nginx-server # apply this service for pods having label app nginx-server
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: nginx-server
+  name: nginx-server
+spec:
+  containers:
+  - name: nginx-server
+    image: nginx:stable
+    ports:
+      - containerPort: 80
+
+$ kubectl apply -f service.yml
+$ kubectl port-forward service/cip-service-nginx-dep 3000:80 --address 0.0.0.0  # for the service/cip-service.... when we type localhost:3000, then the request will be port forwarded to the nginx server which the service is serving.
+
+# On another terminal window
+$ curl localhost:3000
+
+
+How to log into minikube cluster?
+$ minikube ssh   # IMPORTANT
+$ curl <ip of cip-service-nginx-dep service>:80   # You can access the server!!!! Why? Bcoz we are in the cluster
+
+
+Above is a demonstration of ClusterIP service.
+
+ClusterIP service: enables communication within a cluster
+NodePort service: enables communication outside of a cluster (It exposes the service port on each node's IP)
+
+
+
+NodePort:
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: np-service-server
+  name: np-service-server
+spec:
+  ports:
+  - name: "80"
+    port: 80 # This is the NodePort service's port on which it is listening for remote requests
+    protocol: TCP
+    targetPort: 80 # It is the port on the pods to which the service is connected.
+    nodePort: 30009  # This port is used to access the specific pods connected to the service. node1:30009 will enable to access the node1's service. Here node means pod
+  selector:
+    app: nginx-server # apply this service for pods having label app: nginx-server
+  type: NodePort
+
+In the diagram: fr means frontend. bk means backend
+
+
+
+
+
+
+
+My observations:
+We need a Service type of Load Balancer to get External IP
+
+$ minikube ip
+
+$ ping <minikube ip>
+
+-> we can ping!
+
+
+My Hands-On on NodePort:
+As we know, if we use type: ClusterIP, then we can only request from inside of the cluster.
+This means, we cannot even curl from our bash shell! Bcoz that also means from outside of the cluster.
+
+To access the pods from outside of the cluster (even from bash), we need to use NodePort service. Read https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+
+cat nodeport-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: np-service-server
+  name: np-service-server
+spec:
+  ports:
+  - name: "80"
+    port: 80 # This is the NodePort service's port on which it is listening for remote requests
+    protocol: TCP
+    targetPort: 80 # It is the port on the pods to which the service is connected.
+    nodePort: 30009  # This port is used to access the specific pods connected to the service. node1:30009 will enable to access the node1's service. Here node means pod
+  selector:
+    app: nginx-server # apply this service for pods having label app nginx-server
+  type: NodePort
+
+$ kubectl apply -f nodeport-service.yml
+$ minikube ip
+.....
+$ curl <minikube-ip>:30009 # Works!!!!!
+
+So now we are able to make a request on port 30009 directly from our shell (from outside of the cluster).
+
+But why are we requesting on minikube IP address? Bcoz try running:
+$ kubectl describe pod nginx-server | less
+
+the Node value is minikube/IP. As this pod is running on the minikube Node, we are curling on that IP as we have a NodePort service.

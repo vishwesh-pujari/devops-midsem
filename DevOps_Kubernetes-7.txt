@@ -1,0 +1,147 @@
+Storage in Kubernetes Pods
+
+Docker images are formed in Layered manner. All these layers are read only. When container is launched, image is launched in Read-Only Mode.
+Still, we can write to existing filess / create new files.
+This is bcoz while launching container, another read-write layer is created. Whenever a file has to be written, it is first brought in this layer. All this is done by Docker.
+The read write layers are available only till the life of the container. When container is deleted, this layer is lost, hence data is lost.
+
+All writes to the image are done in layered manner.
+If image is deleted, all data is gone.
+
+
+$ ssh root@docker    # docker is name of Virtual Machine
+$ docker ps
+$ docker run -v /mnt:/var/lib/mysql mysql
+$ cd /mnt
+$ ls
+ # see my-data
+
+$ docker exec -it <container-id> bash
+
+$ docker run -v /mnt/:<documentRoot> -it httpd
+
+
+$ docker inspect <container-id> | less
+
+
+Volumes in K8S:
+K8S supports different container runtimes.
+Similarly for Storage, K8S supports various backend providers (Our file System, Cloud Storage)
+CSI - Container Storage Interface
+CNI - Container Network Interface
+
+
+cat pod-storage.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    app: nginx
+    type: frontend
+    subject: devops
+spec:
+  containers:
+    - name: container-1
+      image: nginx
+      volumeMounts:
+        - mountPath: /usr/share/nginx/html/ # this is the documentroot for nginx
+          name: nginx-home
+          readOnly: false
+  volumes:
+    - name: nginx-home
+      hostPath:
+        path: /data  # /data on host is the volume nginx-home on the mount path /usr/share/nginx/html/ in the container! It is a shared storage.
+        
+$ kubectl describe pod myapp
+$ kubectl exec -it myapp -- bash
+$ # now we are in container
+
+To share the mounts, we have to create the mount on the same node on which the pod is running. SO the /data should be on the same node on which the pod is running.
+
+$ kubectl port-forward myapp 30005:80 --address 0.0.0.0
+
+open new terminal
+# assume that myapp is running on kubeworker2
+
+create /data on kubeworker2
+add a file in /data : index.html
+
+$ curl kubemaster:30005
+
+Normally a shared storage is setup betn all the worker nodes. So that a pod running on any worker node can access the storage.
+
+cat pv.yml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nginx-pv
+spec:
+  capacity:
+    storage: 1Gi  # 1 Giga Bit
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /data   # any pod which uses nginx-pv storage, will write on /data
+
+$ kubectl apply -f pv.yml
+$ kubectl describe pv nginx-pv | less
+
+pv stands for persistence volume.
+
+cat pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Mi
+
+K8S tries to find a best possible match for the above request. i.e. it'll try to find a 50M Physical Volume. However we have created a 1G volume and it is the only one available. So k8s will allot that 1G to this nginx-claim. Only 50M is used, rest remains unutilized. No other pod has access to it.
+
+cat pod-pvc.yml:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    app: nginx
+    type: frontend
+    subject: devops
+spec:
+  containers:
+    - name: container-1
+      image: nginx
+      volumeMounts:
+      - mountPath: /usr/share/nginx/html/
+        name: mydrive
+  volumes:
+    - name: mydrive
+      persistentVolumeClaim:
+        claimName: nginx-claim # this claim is named as mydrive. This mydrive volume is used by the container.
+        
+        
+In nginx-claim, we aren't concerned abt where the data is stored. Whether its /data or anything else. As a developer we just make a claim of certain size of volume.
+Developer creates claim file and pod
+The Administrator of K8S creates the pv.yml (Bcoz there the physical /data is specified)
+
+
+Run pod
+see describe pod (see mounts / storage)
+
+The mount can be on local, on amazon, etc.
+
+$ curl kubemaster:<port>   # how can we request to the kubemaster???? Are we making changes in any file
+
+$ kubectl get pvc # gives the pv claims
+
+Now create a pod with a requirement of 2Gi when we only have maximum of 1Gi
+That pod will always be in Pending state. Bcoz we don't have that much storage
+
+
+$ kubectl delete pvc nginx-claim
