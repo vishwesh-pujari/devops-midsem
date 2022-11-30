@@ -1,0 +1,23 @@
+git '/root/sample-app'   -> for pulling repo from local machine
+For above to work, set LOCAL_CHECKOUT To True
+
+$ userdbctl user jenkins
+
+stage('build') {
+	steps {
+		script {
+			image = docker.build('.....')
+		}
+	}
+	steps {
+		step {
+			"docker run ....."
+}
+
+In the pipeline script, we can even run apps or start our app on a port.
+But if we run a server, then it will keep running on the jenkins server. Kill the app.
+
+Install "docker pipeline" plugin to use docker command from jenkins pipeline.
+Install "Kubernetes" plugin for interacting jenkins with K8S
+
+agent in pipeline is for multi-node setup

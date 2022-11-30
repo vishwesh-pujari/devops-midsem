@@ -1,0 +1,62 @@
+Access Jenkins from browser.
+
+New Item -> to create CI/CD pipeline.
+Create a pipeline
+
+Write a pipeline script
+pipeline {
+	agent any # 'any' is the name of the node. means schedule job "any"where
+	stages {
+		stage('Hello') { # each stage is a task
+			steps {
+				echo 'Hello World'
+			}
+		}
+	}
+}
+
+Save the pipeline.
+Click on Build Now.
+
+Click on #1 (Build Number 1)
+See the console output.
+
+To modify the pipeline, right click and click on Configure.
+
+We can specify environment varables in the pipeline script.
+
+Now, try creating a free style project, select Shell.
+
+If we are picking pipeline from SCM, then we have to create a Jenkinsfile in the Git repo.
+For this we have to provide github url, and then select "Pipeline Script from SCM" (Then it will run the code in the Jenkins file from the Github)
+
+steps {
+	git 'url'
+}
+the above step clones the git url. We can do this if we haven't specified the url in the config.
+
+We can do code testing in the pipeline script.
+Jenkins executes everything on the node where it is hosted. So if it is hosted on localhost, it is executing everything on our computer.
+
+sh 'shell command' to execute command.
+
+We cannot have 2 stages having same name.
+
+We can trigger build on a push on a branch, or a pull on a branch
+Developors do not have access to Jenkins Server.
+
+We can add users and give permissions to access jenkins server.
+
+Manage Jenkins - do setup, security
+Manage Jenkins -> Plugins -> See, install plugins
+
+Manage Jenkins -> Credentials -> Global Credentials -> Add a credential:
+Create Pipeline -> JenkinsFile from SCM -> Add Git repo -> Select the credential!
+For private repo, we need credential.
+
+Manage Jenkins -> Configure Jenkins -> See location where builds happen
+Number of executers -> maximum number of jobs that can run at a time
+
+Manage Jenkins -> Manage nodes and clouds
+
+Install Plugins -> are installed on the local machine / VM on which jenkins server is running.

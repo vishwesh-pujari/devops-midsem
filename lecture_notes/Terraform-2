@@ -1,0 +1,217 @@
+$ terraform validate -> validate the .tf file. Syntax.
+terraform plan runs validate internally.
+
+kubemaster, kubeworker1, kubeworker2 were all VMs in virt-manager!
+
+A .tf file for creating VM.
+
+The below given filenames are just conventions
+main.tf   -> define resource blocks
+variables.tf -> var declarations
+provider.tf -> contains provider definition
+
+
+https://registry.terraform.io/providers/hashicorp/local/latest/docs/data-sources/file
+Click on Use Provider
+See how you specify the provider
+
+Variables in terraform:
+See random_pet on hashicorp site.
+
+cat main.tf
+resource "local_file" "pet" {
+	filename = var.filename
+	content = var.content
+}
+
+cat variables.tf # specify the variables and their default values. The filename can be anything.
+variable "filename" {
+default = "/tmp/pets.txt"
+type = string
+description = "Filename to be generated for tracking pets"
+}
+variable "content" {
+default = "We love pets!"
+}
+..
+.
+.
+
+What if we keep variables empty?
+variable "filename" {
+}
+
+Write main.tf file on ur own
+
+$ terraform plan
+$ terraform apply
+	Asks for entering the variables
+	
+	
+variables.tfvars file -> declarations of all the variables
+filename = "..."
+prefix = ""
+content = "...."
+
+Variable Precedence -> https://developer.hashicorp.com/terraform/language/values/variables#variable-definition-precedence
+0th precedence -> default vars in .tf file.
+1st precedence -> env vars
+
+
+Lifecycle:
+lifecycle {
+	prevent_destroy = true
+}
+
+If there's an existing resource, and if we again try to do "terraform apply", then terraform tries to delete the resource.
+
+Data Source:
+data .... <resource-name> {
+	# arguments -> provide id of VM(resource)
+}
+
+
+cat main.tf
+data "local_file" "terraform" {
+	filename = "any file on ur system which u wanna read"
+}
+
+terraform init
+terraform apply
+less terraform.tfstate
+All the content of the file goes to resources.instances.content!!
+
+
+State file:
+$ terraform state list   # list all resources created
+$ terraform state show  # gives the state of resources.
+
+Provisioner:
+Post creation of resource what task u want to perform
+https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax#how-to-use-provisioners
+
+
+Taint?
+
+Log Level:
+From low to high (top to down)
+
+$ export TF_LOG="Trace"
+$ terraform apply
+$ unset TF_LOG
+
+Imports:
+data block gives info abt content
+terraform import -> if you want to manage a resource which is already created , then use this command. It will create a .tfstate file for us.
+To manage it, write the .tf file based on .tfstate.
+
+Missing in the pdf:
+count and for_each
+
+cat main.tf
+resource "local_file" "pet" {
+	filename = "/tmp/pets.txt"
+	..
+	..
+	count = 2
+}
+
+This creates 2 resources.
+$ terraform init
+$ terrform apply
+
+But the metadata of both objects is same!!
+So there is only one /tmp/pets.txt. This doesn't serve any use. How to use count feature appropriately?
+
+So in the state file, there are 2 instance entries.
+
+To create multiple resources
+
+$ cat variables.tf
+variable "filename" {
+default = [
+"filepath1",
+"filepath2",
+..
+.
+
+]
+}
+
+variable "content" {
+default = "Hello"
+}
+
+$ cat main.tf
+resource "local_file" "pet" {
+	filename = var.filename[count.index]      // imp! count.index
+	content = var.content
+	count = length(var.filename)     // set count dynamically
+}
+
+$ terraform apply
+
+
+Other way of doing the same thing is for_each
+for_each takes a set as input.
+
+
+$ cat variables.tf
+variable "filename" {
+type = set(string)    // additional line
+default = [
+"filepath1",
+"filepath2",
+..
+.
+
+]
+}
+
+variable "content" {
+default = "Hello"
+}
+
+$ cat main.tf
+resource "local_file" "pet" {
+	filename = each.value      // imp! each.value
+	content = var.content
+	for_each = var.filename     // for_Each takes a set as input
+}
+
+This doesn't create array. This creates separate resources.
+
+
+
+Explicit Dependency:
+
+$ cat main.tf
+resource "local_file" "pet" {
+	filename  = 
+	content = 
+	depends_on = [
+		random_pet.my-pet
+	]
+}
+
+resource "random_pet" "my-pet" {
+	prefix = var.prefix
+	separator = var.separator
+	length = var.length
+}
+
+terraform ensures that random_pet.my-pet exists(otherwise creates) before creating local_file.pet.
+
+
+
+How to create VM using terraform:
+See link given in pdf.
+As we are using KVM, we have to use the corresponding provider.
+First download the image of VM on computer.
+
+
+$ virsh pool
+$ virsh pool-list
+$ virsh net-list
+
+U can see all providers and their documentation on registry.terraform

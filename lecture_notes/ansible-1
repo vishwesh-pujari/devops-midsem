@@ -1,0 +1,31 @@
+Ansible - Configuration Management
+idempotency
+
+Go to ansible community documentation
+ansible scripts are yaml based.
+
+Once we have infrastructure ready, and we want to configure -> then use ansible.
+From same ansible script, we can manage multiple nodes.
+
+Control Node -> Where ansible is installed. Separate VM. Separate dedicated node.
+
+less /etc/ansible/hosts
+
+Create 2 VMs using terraform.
+
+in yaml file, each section is called play
+It is a playbook
+
+We can write our own inventory file and pass it while running ansible
+$ ansible-playbook change_hostname.yaml -i inventoryfile
+
+We can group hosts/vms in the inventory file.
+Benefits of grouping?
+
+- hosts: db   # this means only apply the below tasks to hosts listed under "db".
+
+How to write inventory?
+web1 ansible_host=... ansible_connection=... ....
+This web1 is an alias for the VM. It can be anything. it doesnt need to be same as its hostname.
+
+ansible_host=<ip or fully qualified name>

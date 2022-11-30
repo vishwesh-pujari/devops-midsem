@@ -1,0 +1,104 @@
+Create 2 VMs using Terraform.
+See on virt-manager what their IPs are (by gng into the VM and ifconfiging)
+Write the inventory file in local directory. Specify appropriate IPs
+
+Use modules for writing tasks
+
+vi /etc/ansible/ansible.cfg   # configuration file
+Default configuration file which ansible picks up.
+
+#gathering = implicit
+ansible gathers system information(os, hw infor) about the server which is going to be configured before connecting to it .
+
+If we specify environment var, then we will override the vars in the main config file.
+
+Configuration File Precedence:
+The name of file MUST be ansible.cfg
+
+View Configurations:
+Facts: -> we can get information about system.
+
+tasks:
+- debug:
+    var: ansible_facts   # gathers all facts
+
+Here, debug is a module
+
+hosts:localhost means it will run the play on ControlNode.
+
+
+How to stop gathering facts
+- name: .....
+  hosts: all
+  gather_facts: no
+  tasks:
+  - debug:
+      var: ansible_facts
+      
+      
+Modules in Ansible:
+Go to Command Modules on the documentation 
+
+Inside of tasks, we specify module. That module takes something as input.
+eg. debug is a module, it takes ansible_Facts as input. And debug module simply prints it.
+
+tasks:
+  - name: Execute command 'date'
+    command: date     # this is the command module, it executes the command as date
+    
+
+In the inventory file, the alias of the name is {{inventory_hostname}}
+
+ansible.builtin.hostname:     # hostname is a builtin module.
+	name="{{inventory_hostname}}"
+	
+	
+By default gathering facts is enabled.
+
+ansible -m ping all
+-m : to invoke a certain module
+all : hosts
+
+
+ansible -m ping -i ./inventoryfile all
+
+Inside the file:
+
+tasks:
+	ping:
+	
+We have an archive and unarchive module.
+We also have a copy module
+
+Cron Job
+cron is the module
+
+- hosts: all
+  tasks:
+  - name: Created a scheduled task
+    cron:
+      name: Run daily health report
+      job: sh /opt/scripts/health.sh
+      month: 2
+      day: 19
+      hour: 8
+      minute: 10
+      
+mount module.
+
+file module.
+state: directory   # means creates directory
+state: touch     # creates empty file.
+
+idempotency is very imp in ansible
+
+firewalld module.
+
+lineinfile module.
+
+tasks:
+  - lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver 10.1.250.10'
+
+Ansible checks whether such a line exists in the file, if not, adds it. idempotency.

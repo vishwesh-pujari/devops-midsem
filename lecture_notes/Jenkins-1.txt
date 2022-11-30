@@ -1,0 +1,49 @@
+Once code is written -> then we test the code -> sanity checks -> run scanners to check if code is vulnerable or not. -> then bring it live.
+
+Nowadays, standard practice is to containerize everything. - docker.
+
+scaling part handled by Kubernetes.
+
+so in betn developing code (docker) and deploying it on kubernetes cluster, what all do we do and how we do? - Jenkins
+
+What is CI/CD?
+ - Continuous integration, Code Delivery
+What is Jenkins?
+ - Popular automation tool for Continuous integration and Continous Delivery
+
+Integration here means integration between modules. The Code Scanning for security is also done.
+
+Jenkins automatically starts the building, testing, deploymens etc. we just have to push on git.
+
+CI/CD in simple words is a process to take a code, package it up and deploy it to a system that can be serverless, a VM, or a container.
+
+CI/CD can be broken into 3 steps:
+1. CI - Continuous Integration
+2. CD - Continuous Delivery    # The application is ready to deployed, but is not deployed yet.
+3. CD - Condtinuous Deployment   # The application is deployed.
+
+
+Key Processes of CI:
+Packages the code
+Test the code (unit tests, integration tests)
+Run security checks against the code
+
+Key pieces of CD:
+1. Ensure you're authenticated to the system or wherever you're deploying.
+2. Ensure that the code that's being deployed is working as expected.
+
+
+Install Jenkins for linux.
+We can even run jenkins from a docker container or kubernetes!! Instead of installing on linux.
+
+If we don't want Jenkins to go down, we can use Kubernetes / docker!
+
+https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
+Jenkins requires Java 11 or 17. Read the prerequisites.
+
+Follow the docs and that's it. The jenkins service is started. You can see it at: ps -eaf | grep jenkins.
+And then access the dashboard at: localhost:8080
+
+$ sudo systemctl status jenkins 
+
+$ sudo cat /var/lib/jenkins/secrets/initialAdminPassword # gives the initial password.

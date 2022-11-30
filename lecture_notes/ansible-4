@@ -1,0 +1,62 @@
+Ansible Filters
+
+eg manipulating strings, concatenation
+See the site link
+
+'{{message | upper}}'
+
+
+
+Templates:
+Jinja template file -> .j2 extension.
+
+less copy.yml
+less server.j2
+
+The server.j2 file is copied as it is. The copy module doesn't do the jinja processing.
+
+instead of copy, use template module.
+less template.yml
+
+
+Includes:
+less include.yml
+
+to include variables from a file
+
+Include tasks:
+less task-playbook.yml
+
+
+
+Roles:
+ansible-galaxy init test-role
+see the test-role/ directory.
+Structured.
+
+We can even install existing written roles.
+
+$ ansible-galaxy list
+
+$ export ANSIBLE_ROLES_PATH=/home/guest/role
+
+
+
+
+Strategy:
+If we want to run a set of tasks on multiple servers.
+first task is run on all servers.
+then second task is run on all servers.
+...
+
+Linear strategy is default
+
+- name: Print hello message
+  hosts: all
+  # specify strategy is
+
+free means the execution is free from the hosts.If first host is fast in its processing, then the next task is immediately scheduled on it.
+
+
+Batch:
+forks      -     how many parallely

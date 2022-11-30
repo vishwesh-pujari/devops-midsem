@@ -1,0 +1,76 @@
+Write Code -> Git -> Github -> Jenkins Pipeline (Build automatically) -> Run on docker / kubernets.
+
+Infrastructure as Code:
+How to create infrastructure? How to create VMs where K8S clusters will be hosted?
+Automating process of creating infrastructure.
+
+HCL -> language specification for terraform
+
+IAC -> Infra as Code
+1. Config management - 
+	We already have VM. We just want to install something or config anything
+	eg Ansible, SaltStack, Puppet
+2. Server Templating -
+	
+	eg docker, packer, vagrant
+3. Provisioning Tools -
+	eg Terraform, CloudFormation
+	
+Terraform has rich set of plugins called providers.
+registry.terraform.io  -> list of all providers.
+https://developer.hashicorp.com/terraform/intro
+
+$ virt-manager
+
+AWS like providers provide APIs to create VMs etc from COde.
+Terraform is a declarative language(just specify what u want). Terraform provider calls the APIs.
+
+In HCL language: 
+resource -> bcoz we have to automate the process of creating resources
+"aws_instance" -> aws is provider, instance is ec2 instance
+
+.tf extension
+
+resource "local_file"    means local is provider and resourcefile is file. https://registry.terraform.io/providers/hashicorp/local/latest/docs
+
+resource "local_file" "games" {
+	filename = "/tmp/favourite-games"
+	content = "FIFA 21"
+}
+
+Providers are just plugins.
+
+$ terraform -h
+$ terraform init  -> prepares Working Directory for other commands
+$ terraform validate
+$ terraform plan
+$ terraform apply
+
+
+Run $ terraform init
+It will install the hashicorp/local bcoz we specified "local_file"
+All providers are downloaded in ./.terraform
+
+Run $ terraform plan
+Terraform creates the resource for us.
+
+Run $ terraform apply
+terraform.tfstate file is created.
+Gives complete list of all resources managed by terraform script
+
+Now check
+$ ls /tmp
+$ cat /tmp/favorite-games
+
+
+$ terraform destroy
+$ ls /tmp
+
+content is an attribute.
+.tfstate is used for tracking current changes. This is done bcoz it is not possible always to use AWS API to get what is exactly being run.
+terraform compares the .tf file and .tfstate file.
+
+The plugin is related to the ENVIRONMENT WHERE WE WANT TO SET THE INFRA
+
+Infra means
+VM, Network associated with that VM, Firewall, etc.

@@ -1,0 +1,91 @@
+Validate whether playbook is valid:
+$ ansible-playbook playbook.yml --check
+
+On default, execution of tasks is linear.
+If we want to skip some tasks, then we can using --start-at-task while running command.
+
+Tags:
+tasks:
+- yum:
+    name: httpd
+    state: installed
+  tags: install
+
+We can use this tag, to run only a certain part of the task
+--tags "install"
+--skip-tags "install"
+
+Variables in Ansible:
+Jinja format: {{}}
+
+In the inventory file:
+[web_servers:vars]
+dns_server=10.5.5.3
+
+This variable is available for all web_servers.
+
+Host level variable declaration. Group level variable declaration.
+
+Play vars means whatever vars are specified in playbook.
+
+
+Register Variables:
+tasks:
+- shell: cat /etc/hosts
+  register: result   # store result in register variable
+- debug:
+    var: result    # print the result.
+    
+    
+Magic Variables:
+Inbuilt vars
+
+hostvars  - gives all variables for all hosts
+groups   - gives all hosts in a specific group
+
+
+shell:
+shell module is to execute commands.
+
+
+Conditionals:
+
+apt:
+  name: nginx
+  state: present
+when: ansible_os_family == "Debian"
+
+
+So apt will be executed when the os fam is Debian
+
+tasks:
+- command: service httpd status
+    register: result
+- mail:
+    to: mailid
+    subject: .....
+    body: ....
+  when: result.stdout.find('down') != -1
+
+mail module is executed only if when condn is true.
+
+
+Loops:
+See the loop.yml file.
+
+state:present means at the end of invoking a command, the package must be present.
+
+
+
+Blocks: Groups tasks
+less block.yml
+
+
+Error Handling:
+less error.yml
+
+
+Task Failure:
+any_errors_fatal : true   # if there is any error in the task, then ansible doesn't execute furthur tasks.
+
+less fail.yml

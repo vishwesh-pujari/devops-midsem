@@ -1,0 +1,27 @@
+Shared libraries are shared among a jenkins instance.
+
+ngrok - expose jenkins service running on local machine to internet
+
+See slides for the steps
+We can import shared libraries from multiple github libraries. We can even specify the branch from where we can get shared lib.
+vars/ folder on github. These files will be treated as variables.
+
+@Library("shared_lib")_    // _ means import *
+Groovy -> very similar to java.
+
+Entry point of shared lib is call() function in groovy
+
+parallel {
+	// all stages are executed in parallel.
+}
+
+post {
+	// https://www.jenkins.io/doc/book/pipeline/syntax/
+	// read what post does
+}
+
+blueocean plugin -> improves readability
+webhook
+github app -> api requests
+
+Github Deployments and Environments.
