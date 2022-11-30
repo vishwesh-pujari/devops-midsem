@@ -1,0 +1,12 @@
+Install KVM/Qemu and virsh on ubuntu -> https://computingforgeeks.com/install-kvm-hypervisor-on-ubuntu-linux/
+Install terraform -> https://computingforgeeks.com/how-to-install-terraform-on-linux/
+Follow this -> https://computingforgeeks.com/how-to-provision-vms-on-kvm-with-terraform/
+How to handle "default storage pool error" -> https://stackoverflow.com/questions/70230848/kvm-virsh-the-storage-pool-is-empty
+How to list domains in virsh -> https://unix.stackexchange.com/questions/300113/how-to-list-domains-in-virsh
+How to delete a running domain/VM on virsh -> https://www.cyberciti.biz/faq/howto-linux-delete-a-running-vm-guest-on-kvm/
+SOlution to the Permission denied error after doing "terraform apply" -> https://github.com/dmacvicar/terraform-provider-libvirt/commit/22f096d9   (in the /etc/libvirt/qemu.conf file write security_driver = "none" and then restart libvirtd)
+
+How to see the virtual machine? -> $ virt-manager
+
+Download Ubuntu file from here -> https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+Downloaded fedora file from here -> https://mirrors.tuna.tsinghua.edu.cn/fedora/releases/36/Cloud/x86_64/images/Fedora-Cloud-Base-36-1.5.x86_64.qcow2

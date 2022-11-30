@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ubuntu-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-ubuntu-pod
+  
+  template:
+    metadata:
+      name: nginx-ubuntu-pod
+      labels:
+        app: nginx-ubuntu-pod
+    spec:
+      containers:
+      - image: ubuntu:latest
+        command: ["/bin/sleep", "3650d"]
+        name: ubuntu
+      - image: nginx:latest
+        name: nginx

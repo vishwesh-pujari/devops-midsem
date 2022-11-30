@@ -1,0 +1,4 @@
+According to the Assignment description, each pod has a limit of 8MB RAM. However, my NGINX pods were not starting due to "Out of memory" error.
+Hence I have increased the namespace memory limit to 200MB, and each pods' memory limit to 50MB.
+
+Also as there are 4 total pods(2 replicas x 2 pods), for every pod I have kept the cpu limit to 1, so that the resource-quota doesn't give an error.

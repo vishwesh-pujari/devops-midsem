@@ -1,0 +1,18 @@
+Nodes in a cluster have a limit on "allocatable resources"
+$ kubectl get nodes
+$ kubectl describe node <node-name>
+ - see the capacity and allocatable resources.
+
+In this assignment, I was creating 2 pods, each taking 2 cpus. But the problem was, that the minikube control plane node can at max allocate only 2 cpus. Hence the second pod wasn't running.
+
+Total "limits" may be over 100 percent, i.e., overcommitted. i.e. multiple pods on a node can request limits which are greater than the allocatable resources.
+However the total "requests" of all pods must be less than the allocatable resources of all nodes on that pod.
+
+cpu: 800m  # m here means milli. 800 millicpu
+
+
+
+
+$ minikube ssh 
+
+- after entering the cluster, you can directly ping or curl to the IP addresses of the services / pods without doing port forwarding and all.

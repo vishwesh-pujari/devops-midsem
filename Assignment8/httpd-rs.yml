@@ -1,0 +1,28 @@
+# httpd-replicaset
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: httpd-rs
+  namespace: testing-space
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: httpd
+  
+  template:
+    metadata:
+      labels:
+        app: httpd
+      namespace: testing-space
+    spec:
+      containers:
+      - name: httpd-pod
+        image: httpd:latest
+        resources:
+          limits:
+            memory: "50M"
+            cpu: "1"
+          requests:
+            memory: "50M"
+            cpu: "200m"

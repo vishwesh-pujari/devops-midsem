@@ -1,0 +1,28 @@
+# nginx-replicaset
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-rs
+  namespace: testing-space
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  
+  template:
+    metadata:
+      labels:
+        app: nginx
+      namespace: testing-space
+    spec:
+      containers:
+      - name: nginx-pod
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "50M"
+            cpu: "1"
+          requests:
+            memory: "50M"
+            cpu: "200m"

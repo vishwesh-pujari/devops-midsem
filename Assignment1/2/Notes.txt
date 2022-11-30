@@ -1,0 +1,9 @@
+https://en.wikipedia.org/wiki/C_data_types#stdint.h
+
+https://www.quora.com/How-does-a-32-bit-OS-work-on-a-64-bit-processor-For-example-if-the-processor-has-to-sum-up-two-64-bit-numbers-then-hew-can-handle-that-action-if-he-only-uses-32-bits
+
+https://stackoverflow.com/questions/1229131/how-to-declare-a-32-bit-integer-in-c#:~:text=C%20doesn't%20concern%20itself,you%20can%20use%20e.g.%20int32_t%20.
+
+https://stackoverflow.com/questions/28977587/is-it-ok-to-use-64bit-integers-in-a-32bit-application#:~:text=It's%20fine%20to%20use%2064,use%20of%20types%20like%20int64_t%20.
+
+https://stackoverflow.com/questions/48921141/who-decides-the-sizeof-any-datatype-or-structure-depending-on-32-bit-or-64-bit

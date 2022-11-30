@@ -1,0 +1,10 @@
+How to create a custom dockerfile for php - https://hub.docker.com/_/php
+
+How to start a local PHP server in a directory? php -S localhost:3000
+However after CMD in docker file we localhost doesn't work. We have to mention
+CMD ["php", "-S", "0.0.0.0:3000"]
+Source: https://stackoverflow.com/questions/25591413/docker-with-php-built-in-server
+
+While running the docker image, use port mapping of 3000:3000
+Bcoz on our host machine we are going to request on 3000, and in the container the server is running on 3000
+If in the container the php server was running on 4000, then we would have to specify the port mapping as 3000:4000

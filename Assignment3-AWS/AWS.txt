@@ -1,0 +1,11 @@
+Create Free Account on AWS. Don't forget to deactivate after 1 year bcoz you have given debit card details.
+
+Go to EC2 console: Create a new Ubuntu Instance.
+You can see the instance on Lightsail. You can also see if it is running or closed. Note that the instance is FREE FOR THE FIRST 3 MONTHS AFTER CREATING IT ONLY.
+
+Click on the terminal icon of that machine, install apache server, vim, etc. Write a new HTML file in /var/www/html
+You can see the public IP of that ubuntu machine. If you type that public IP in the window, you will be able to see the website!
+To see the url corresponding to the public IP: type:
+host <public-ip>
+OR
+nslookup <public-ip>

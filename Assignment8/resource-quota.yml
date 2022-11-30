@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: testing-space-rq # rq stands for resource quota
+  namespace: testing-space
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 200M
+    limits.cpu: "4"
+    limits.memory: 200M

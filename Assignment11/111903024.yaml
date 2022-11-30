@@ -1,0 +1,26 @@
+- name: Assignment
+  hosts: all
+  tasks:
+    - name: new user
+      become: true
+      user:
+        name: student
+        state: present
+        password: "student123"
+    - name: make student sudoer only for apt
+      ansible.builtin.command: /usr/bin/echo "student ALL=(root) /usr/bin/apt" > /etc/sudoers.d/student
+    - name: install the package tree on the machine
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - tree
+        state: latest
+        force: yes
+        update_cache: yes
+    - name: Get the list of partitions on the machine, that is /etc/partitions file
+      setup:
+        gather_subset:
+          - hardware
+    - name: partitions
+      debug:
+        var: hostvars[inventory_hostname].ansible_devices.keys() | list

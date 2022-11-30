@@ -1,0 +1,26 @@
+- name: 1
+  #hosts: virtualmachines
+  tasks:
+   - name: create a new user
+     become: true
+     user: 
+       name: student
+       state: present
+       password: '$6$X3DKQKOXMSFus1qO$74UaRVNOL3soJ02p/3qqhunDf1mcwdzxjyyiEhC3kva3LmTOVkccf8.A0hKwJ/vPEX5pTFakRHSr/QO8fMoCt0' #hashed password for student123
+   - name: make student sudoer only for apt
+     ansible.builtin.command: /usr/bin/echo "student ALL=(root) /usr/bin/apt" > /etc/sudoers.d/student
+   - name: install tree
+     become: yes
+     ansible.builtin.apt:
+       name:
+         - tree
+       state: latest
+       force: yes
+       update_cache: yes
+   - name: get list of partitions
+     setup:
+       gather_subset: 
+        - hardware
+   - name: show list of partitions
+     debug: 
+       var: hostvars[inventory_hostname].ansible_devices.keys() | list

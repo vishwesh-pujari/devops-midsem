@@ -1,0 +1,9 @@
+https://computingforgeeks.com/deploy-ubuntu-pod-in-kubernetes-openshift/
+https://minikube.sigs.k8s.io/docs/start/
+
+Each time laptop is started, you need to start minikube cluster.
+$ minikube start
+
+Why do we need to sleep the Ubuntu Container?
+Ans : https://downey.io/notes/dev/ubuntu-sleep-pod-yaml/
+However, it’s not as simple as running the ubuntu image on its own. You need to make it actually do something or the container will just exit immediately. Fortunately this is easy enough… just make the container sleep for a long time!
